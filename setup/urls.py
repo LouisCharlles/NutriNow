@@ -20,6 +20,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 from nutriNow import views
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView 
+from nutriNow.swagger import schema_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("info_paciente/<int:pk>/",views.GetPacienteInfoView.as_view(),name="info_paciente"),
@@ -35,4 +36,5 @@ urlpatterns = [
     path('api/token/',TokenObtainPairView.as_view(),name='token_obtain_pair'),
     path('api/token/refresh/',TokenRefreshView.as_view(),name='token_refresh'),
     path('registrar_usuario/', views.RegistroUsuarioView.as_view(), name='registrar_usuario'),
+    path('swagger/',schema_view.with_ui('swagger',cache_timeout=0),name='schema-swagger-ui'),
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
