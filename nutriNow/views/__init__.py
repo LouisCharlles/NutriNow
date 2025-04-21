@@ -21,6 +21,9 @@ from .usuarios import (
     RegistroUsuarioView,
 )
 
+from .planos_alimentares import(
+    CriarPlanoAlimentarView,
+)
 __all__ = [
     "GetPacienteInfoView",
     "UpdatePacienteView",
@@ -33,4 +36,5 @@ __all__ = [
     "DefineConsultaComoRealizadaView",
     "VizualizarListaDeConsultasView",
     "RegistroUsuarioView",
+    "CriarPlanoAlimentarView",
 ]

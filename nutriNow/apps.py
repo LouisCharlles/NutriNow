@@ -4,3 +4,5 @@ from django.apps import AppConfig
 class NutrinowConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'nutriNow'
+    def ready(self):
+        import nutriNow.signals
