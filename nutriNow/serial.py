@@ -2,9 +2,8 @@ from rest_framework import serializers
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
-from .models import Paciente, Nutricionista,Consulta
+from .models import Paciente, Nutricionista,Consulta,Usuario,PlanoAlimentar
 from rest_framework import serializers
-from .models import Usuario
 class RegistroUsuarioSerializer(serializers.ModelSerializer):
     idade = serializers.IntegerField(required=False)
     peso = serializers.FloatField(required=False)
@@ -96,3 +95,10 @@ class ConsultaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Consulta
         fields = ['id','data_consulta','nutricionista','paciente','realizada']
+
+class PlanoAlimentarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlanoAlimentar
+        fields = ['id','nutricionista','paciente',
+    'dados_json','arquivo_pdf']
+        read_only_fields = ['arquivo_pdf']
