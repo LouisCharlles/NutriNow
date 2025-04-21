@@ -36,5 +36,6 @@ urlpatterns = [
     path('api/token/',TokenObtainPairView.as_view(),name='token_obtain_pair'),
     path('api/token/refresh/',TokenRefreshView.as_view(),name='token_refresh'),
     path('registrar_usuario/', views.RegistroUsuarioView.as_view(), name='registrar_usuario'),
+    path('criar_plano_alimentar/<int:pk>/',views.CriarPlanoAlimentarView.as_view(),name="criar_plano"),
     path('swagger/',schema_view.with_ui('swagger',cache_timeout=0),name='schema-swagger-ui'),
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
