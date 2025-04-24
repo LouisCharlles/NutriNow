@@ -12,9 +12,11 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
     endereco = serializers.CharField(required=False)
     telefone = serializers.CharField(required=False)
     data_nascimento = serializers.DateField(required=False)
+    email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True)
     paciente_data = serializers.DictField(write_only=True, required=False)
     nutricionista_data = serializers.DictField(write_only=True, required=False)
+
     class Meta:
         model = Usuario
         fields = [
@@ -24,7 +26,17 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
             'telefone', 'data_nascimento',
             'paciente_data', 'nutricionista_data',
         ]
-        extra_kwargs = {'password':{'write_only': True}}  
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def validate(self, attrs):
+        if not attrs.get('is_paciente') and not attrs.get('is_nutricionista'):
+            raise serializers.ValidationError("É necessário informar se é paciente ou nutricionista.")
+        # valida a senha com os validadores do Django
+        try:
+            validate_password(attrs['password'])
+        except ValidationError as e:
+            raise serializers.ValidationError({'password': list(e.messages)})
+        return attrs
 
     def create(self, validated_data):
         is_paciente = validated_data.pop('is_paciente', False)
@@ -44,10 +56,11 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
         elif is_nutricionista:
             nutricionista_data = {
                 'usuario': user,
-                'nome': user.username,
+                'nome': nutricionista_data.get('nome', user.username),
+                'senha': nutricionista_data.get('senha'),
                 'email': user.email,
-                'telefone': paciente_data.get('telefone', ''),
-                'endereco': paciente_data.get('endereco', '')
+                'telefone': nutricionista_data.get('telefone'),
+                'endereco': nutricionista_data.get('endereco')
             }
             Nutricionista.objects.create(**nutricionista_data)
 
@@ -55,8 +68,10 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
 class PacienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Paciente
-        fields = ['id','nome', 'email', 'senha', 'idade', 'peso', 'altura',
-            'endereco', 'genero', 'telefone', 'data_nascimento',]
+        fields = [
+            'id', 'usuario', 'nome', 'email', 'idade', 'peso', 'altura',
+            'endereco', 'genero', 'telefone', 'data_nascimento', 'diario_alimentar'
+        ]
 
     def validate_email(self, value):
         try:
@@ -75,7 +90,7 @@ class PacienteSerializer(serializers.ModelSerializer):
 class NutricionistaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Nutricionista
-        fields = ['id', 'nome', 'email', 'senha']
+        fields = ['id', 'usuario','nome', 'email', 'senha','endereco', 'telefone']
 
     def validate_email(self, value):
         try:
