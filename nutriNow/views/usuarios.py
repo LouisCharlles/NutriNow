@@ -72,12 +72,17 @@ class RegistroUsuarioView(APIView):
     def post(self, request):
         serializer = RegistroUsuarioSerializer(data=request.data)
         if serializer.is_valid():
-            if request.data['is_paciente']:
-                user = serializer.save()
-                paciente = Paciente.objects.filter(email__iexact=user.email).values('id','nome','email','senha').first()
-                return Response({'mensagem': f'Usuário criado com sucesso! id:{paciente['id']}'}, status=status.HTTP_201_CREATED)
-            elif request.data['is_nutricionista']:
-                user = serializer.save()
-                nutricionista = Nutricionista.objects.filter(email__ixact=user.email).values('id','nome','email','senha').first()
-                return Response({'mensagem': f'Usuário criado com sucesso! id:{nutricionista['id']}'}, status=status.HTTP_201_CREATED)
+            user = serializer.save()
+            if user.is_paciente:
+                try:
+                    paciente = Paciente.objects.filter(usuario=user).values('id','nome','email','senha').first()
+                    return Response({'mensagem': f'Usuário criado com sucesso! id:{paciente["id"]}'}, status=status.HTTP_201_CREATED)
+                except Paciente.DoesNotExist:
+                    return Response({'error': 'Paciente não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+            elif user.is_nutricionista:
+                try:
+                    nutricionista = Nutricionista.objects.filter(usuario=user).values('id', 'nome', 'email','senha').first()
+                    return Response({'mensagem': f'Usuário criado com sucesso! id:{nutricionista["id"]}'}, status=status.HTTP_201_CREATED)
+                except Nutricionista.DoesNotExist:
+                    return Response({'error': 'Nutricionista não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
