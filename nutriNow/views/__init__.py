@@ -1,13 +1,15 @@
 from .pacientes import (
     GetPacienteInfoView,
     UpdatePacienteView,
-    DeletePacienteView
+    DeletePacienteView,
+    AdicionaAlimentoNoDiarioView,
 )
 
 from .nutricionistas import (
     GetNutricionistaInfoView,
     UpdateNutricionistaView,
     DeleteNutricionistaView,
+    RetornaDiarioAlimentarDoPacienteView,
 )
 
 from .consultas import (
@@ -28,6 +30,7 @@ __all__ = [
     "GetPacienteInfoView",
     "UpdatePacienteView",
     "DeletePacienteView",
+    "AdicionaAlimentoNoDiarioView",
     "GetNutricionistaInfoView",
     "UpdateNutricionistaView",
     "DeleteNutricionistaView",
@@ -37,4 +40,5 @@ __all__ = [
     "VizualizarListaDeConsultasView",
     "RegistroUsuarioView",
     "CriarPlanoAlimentarView",
+    "RetornaDiarioAlimentarDoPacienteView",
 ]

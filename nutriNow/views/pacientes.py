@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from ..models import Paciente
 from ..serial import PacienteSerializer
+from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from django.http import JsonResponse
@@ -199,3 +200,21 @@ class DeletePacienteView(APIView):
             return JsonResponse({'status': 'erro', 'mensagem': f'Nenhum Paciente com este id foi encontrado.'}, status=404)
         except Exception as e:
             return JsonResponse({'status': 'erro', 'mensagem': str(e)}, status=400)
+
+class AdicionaAlimentoNoDiarioView(APIView):
+    permission_classes = [IsAuthenticated]
+    def patch(self,request,*args,**kwargs):
+        try:
+            id_paciente = kwargs['pk']
+            paciente = get_object_or_404(Paciente,pk=id_paciente)
+            serializer = PacienteSerializer(paciente,data=request.data,partial=True)
+            diario_alimentar = request.data.get("diario_alimentar")
+            if serializer.is_valid() and diario_alimentar:
+                serializer.save()
+                paciente.save()
+                return JsonResponse(status=201, data=serializer.data)
+        except Paciente.DoesNotExist:
+            return JsonResponse({"error":"Paciente não encontrado."}, status=404)
+        except Exception as e:
+            return JsonResponse(status=400, data=f"Insira os dados corretamente. {e}",safe=False)
+
