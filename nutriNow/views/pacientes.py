@@ -1,3 +1,4 @@
+import json
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -7,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from django.http import JsonResponse
+from utils.user_permissions import IsPaciente
 class GetPacienteInfoView(APIView):
     """
     View para buscar as informações de um paciente pelo seu ID.
@@ -14,7 +16,7 @@ class GetPacienteInfoView(APIView):
     Métodos:
         get(*args, **kwargs): Retorna os detalhes do paciente baseado no id.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated,IsPaciente]
     @swagger_auto_schema(manual_parameters=[
         openapi.Parameter(
             'id',
@@ -48,16 +50,17 @@ class GetPacienteInfoView(APIView):
         Returns:
             JsonResponse: Informações do paciente se encontrado ou mensagem de erro caso contrário.
         """
-
-        try:
-            paciente_id = kwargs["pk"]  # <- corrigido pra pegar o 'id'
-            paciente = Paciente.objects.get(pk=paciente_id)
-            serializer = PacienteSerializer(paciente)
-            return Response(serializer.data, status=200)
-        except Paciente.DoesNotExist:
-            return Response({"error": "Paciente não encontrado."}, status=404)
-        except Exception as e:
-            return Response({"error": str(e)}, status=400)
+        if request.user.is_paciente:
+            try:
+                paciente_id = kwargs["pk"]
+                paciente = Paciente.objects.get(pk=paciente_id)
+                serializer = PacienteSerializer(paciente)
+                return Response(serializer.data, status=200)
+            except Paciente.DoesNotExist:
+                return Response({"error": "Paciente não encontrado."}, status=404)
+            except Exception as e:
+                return Response({"error": str(e)}, status=400)
+        return JsonResponse({"Error":"Usuário não é paciente, função não é permitida."})
         
 class UpdatePacienteView(APIView):
     """
@@ -66,7 +69,7 @@ class UpdatePacienteView(APIView):
     Métodos:
         patch(request): Atualiza os dados do paciente com base no token fornecido e os dados na request.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated,IsPaciente]
     @swagger_auto_schema(manual_parameters=[
         openapi.Parameter(
             'id',
@@ -127,18 +130,21 @@ class UpdatePacienteView(APIView):
         )
     }
 )
-    def patch(self, request,*args,**kwargs):
-        try:
-            id_paciente = kwargs["pk"]
-            paciente = Paciente.objects.get(pk=id_paciente)
-            serializer = PacienteSerializer(paciente,data=request.data,partial=True) 
-            if serializer.is_valid():
-                serializer.save()
-                return JsonResponse(status=201, data=serializer.data)
-        except Paciente.DoesNotExist:
-            return JsonResponse({"error":"Paciente não encontrado."}, status=404)
-        except Exception as e:
-            return JsonResponse(status=400, data=f"Insira os dados corretamente. {e}")
+    def patch(self, request):
+        if request.user.is_paciente:
+            try:
+                request_body = json.loads(request.body.decode("utf-8"))
+                id_paciente = request_body["id_paciente"]
+                paciente = Paciente.objects.get(pk=id_paciente)
+                serializer = PacienteSerializer(paciente,data=request.data,partial=True) 
+                if serializer.is_valid():
+                    serializer.save()
+                    return JsonResponse(status=201, data=serializer.data)
+            except Paciente.DoesNotExist:
+                return JsonResponse({"error":"Paciente não encontrado."}, status=404)
+            except Exception as e:
+                return JsonResponse(status=400, data=f"Insira os dados corretamente. {e}")
+        return JsonResponse({"Error":"Usuário não é instância de paciente, função não permitida."})
         
 class DeletePacienteView(APIView):
     """
@@ -147,7 +153,7 @@ class DeletePacienteView(APIView):
     Métodos:
         delete(*args, **kwargs): Deleta o Paciente com base no ID fornecido.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated,IsPaciente]
     manual_parameters=[
         openapi.Parameter(
             'id',
@@ -180,7 +186,7 @@ class DeletePacienteView(APIView):
             )
         )
     }
-    def delete(self,*args,**kwargs):
+    def delete(self,request):
         """
         Deleta um Paciente da base de dados com base no ID fornecido.
 
@@ -191,30 +197,36 @@ class DeletePacienteView(APIView):
         Returns:
             JsonResponse: Confirmação de deleção ou mensagem de erro em caso de falha.
         """
-        try:
-            paciente_id = kwargs["pk"]
-            paciente = Paciente.objects.get(pk=paciente_id)
-            paciente.delete()
-            return JsonResponse("Paciente deletado com sucesso.",status=200,safe=False)
-        except Paciente.DoesNotExist:
-            return JsonResponse({'status': 'erro', 'mensagem': f'Nenhum Paciente com este id foi encontrado.'}, status=404)
-        except Exception as e:
-            return JsonResponse({'status': 'erro', 'mensagem': str(e)}, status=400)
+        if request.user.is_paciente:
+            try:
+                request_body = json.loads(request.body.decode("utf-8"))
+                paciente_id = request_body["id_paciente"]
+                paciente = Paciente.objects.get(pk=paciente_id)
+                paciente.delete()
+                return JsonResponse("Paciente deletado com sucesso.",status=200,safe=False)
+            except Paciente.DoesNotExist:
+                return JsonResponse({'status': 'erro', 'mensagem': f'Nenhum Paciente com este id foi encontrado.'}, status=404)
+            except Exception as e:
+                return JsonResponse({'status': 'erro', 'mensagem': str(e)}, status=400)
+        return JsonResponse({"error":"Usuário não é instância de paciente."})
 
 class AdicionaAlimentoNoDiarioView(APIView):
-    permission_classes = [IsAuthenticated]
-    def patch(self,request,*args,**kwargs):
-        try:
-            id_paciente = kwargs['pk']
-            paciente = get_object_or_404(Paciente,pk=id_paciente)
-            serializer = PacienteSerializer(paciente,data=request.data,partial=True)
-            diario_alimentar = request.data.get("diario_alimentar")
-            if serializer.is_valid() and diario_alimentar:
-                serializer.save()
-                paciente.save()
-                return JsonResponse(status=201, data=serializer.data)
-        except Paciente.DoesNotExist:
-            return JsonResponse({"error":"Paciente não encontrado."}, status=404)
-        except Exception as e:
-            return JsonResponse(status=400, data=f"Insira os dados corretamente. {e}",safe=False)
+    permission_classes = [IsAuthenticated,IsPaciente]
+    def patch(self,request):
+        if request.user.is_paciente:
+            try:
+                request_body = json.loads(request.body.decode("utf-8"))
+                id_paciente = request_body["id_paciente"]
+                paciente = get_object_or_404(Paciente,pk=id_paciente)
+                serializer = PacienteSerializer(paciente,data=request.data,partial=True)
+                diario_alimentar = request.data.get("diario_alimentar")
+                if serializer.is_valid() and diario_alimentar:
+                    serializer.save()
+                    paciente.save()
+                    return JsonResponse(status=201, data=serializer.data)
+            except Paciente.DoesNotExist:
+                return JsonResponse({"error":"Paciente não encontrado."}, status=404)
+            except Exception as e:
+                return JsonResponse(status=400, data=f"Insira os dados corretamente. {e}",safe=False)
+        return JsonResponse({"Error":"Usuário não é instância de paciente, função não autorizada."})
 

@@ -48,18 +48,14 @@ class RegistroUsuarioView(APIView):
                     type=openapi.TYPE_OBJECT,
                     properties={
                         'nome': openapi.Schema(type=openapi.TYPE_STRING),
-                        'idade': openapi.Schema(type=openapi.TYPE_INTEGER),
-                        'peso': openapi.Schema(type=openapi.TYPE_NUMBER),
-                        'altura': openapi.Schema(type=openapi.TYPE_NUMBER),
-                        'genero': openapi.Schema(type=openapi.TYPE_STRING),
                         'email': openapi.Schema(type=openapi.TYPE_STRING, format=openapi.FORMAT_EMAIL),
                         'senha': openapi.Schema(type=openapi.TYPE_STRING),
                         'endereco': openapi.Schema(type=openapi.TYPE_STRING),
                         'telefone': openapi.Schema(type=openapi.TYPE_STRING),
-                        'data_nascimento': openapi.Schema(type=openapi.TYPE_STRING, format=openapi.FORMAT_DATE),
+                        'horarios_disponiveis':openapi.Schema(type=openapi.TYPE_OBJECT),
                     },
                     description="Dados do nutricionista (se is_nutricionista=True)",
-                    required=['nome', 'idade', 'peso', 'altura', 'genero', 'email', 'senha', 'endereco', 'telefone', 'data_nascimento']
+                    required=['nome', 'email', 'senha', 'endereco', 'telefone']
                 ),
             },
             required=['username', 'email', 'password']
