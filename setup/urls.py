@@ -41,5 +41,6 @@ urlpatterns = [
     path('retornar_diario_alimentar/<int:pk>/',views.RetornaDiarioAlimentarDoPacienteView.as_view(),name="retornar_diario_alimentar"),
     path('atualiza_horarios_disponiveis/',views.AtualizaHorariosDisponiveis.as_view(),name='atualiza_horarios_disponiveis'),
     path('listar_nutricionistas/', views.ListarNutricionistasView.as_view(), name='listar_nutricionistas'),
+    path('ler_notificacao/<int:pk>/',views.MarcarNotificacaoComoLidaView.as_view(),name="ler_notificacao"),
     path('swagger/',schema_view.with_ui('swagger',cache_timeout=0),name='schema-swagger-ui'),
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

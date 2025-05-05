@@ -10,6 +10,8 @@ from .nutricionistas import (
     UpdateNutricionistaView,
     DeleteNutricionistaView,
     RetornaDiarioAlimentarDoPacienteView,
+    AtualizaHorariosDisponiveis,
+    ListarNutricionistasView,
 )
 
 from .consultas import (
@@ -26,6 +28,10 @@ from .usuarios import (
 from .planos_alimentares import(
     CriarPlanoAlimentarView,
 )
+
+from.notificacoes import(
+    MarcarNotificacaoComoLidaView,
+)
 __all__ = [
     "GetPacienteInfoView",
     "UpdatePacienteView",
@@ -41,4 +47,7 @@ __all__ = [
     "RegistroUsuarioView",
     "CriarPlanoAlimentarView",
     "RetornaDiarioAlimentarDoPacienteView",
+    "AtualizarHorariosDisponiveis",
+    "ListarNutricionistasView",
+    "MarcarNotificacaoComoLidaView",
 ]
