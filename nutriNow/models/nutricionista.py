@@ -8,6 +8,6 @@ class Nutricionista(models.Model):
     senha = models.CharField(max_length=100,null=False,default="senha")
     telefone = models.CharField(max_length=20)
     endereco = models.CharField(max_length=255)
-
+    horarios_disponiveis = models.JSONField(default=dict,blank=True)
     def __str__(self):
         return self.nome

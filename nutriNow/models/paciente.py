@@ -12,10 +12,10 @@ class Paciente(models.Model):
     altura = models.FloatField()
     genero = models.CharField(max_length=10)
     email = models.EmailField(unique=True)
-    senha = models.CharField(max_length=100, default="senha")
-    endereco = models.CharField(max_length=255)
+    senha = models.CharField(max_length=100)
+    endereco = models.CharField(max_length=255,blank=True)
     telefone = models.CharField(max_length=20)
-    data_nascimento = models.DateField()
+    data_nascimento = models.DateField(blank=True)
     plano_alimentar = models.ForeignKey(
         "PlanoAlimentar",
         on_delete=models.SET_NULL,
@@ -23,6 +23,7 @@ class Paciente(models.Model):
         blank=True,
         null=True,
     )
+    diario_alimentar = models.JSONField(default=dict,blank=True,null=True)
 
     def __str__(self):
         return self.nome
