@@ -7,5 +7,5 @@ class NutrinowConfig(AppConfig):
 
     def ready(self):
         # Evita importar os signals durante o comando de migração
-        if any(cmd in sys.argv for cmd in ['runserver', 'gunicorn', 'celery']):
+        if not any(cmd in sys.argv for cmd in ['makemigrations', 'migrate', 'collectstatic', 'shell']):
             import nutriNow.signals
