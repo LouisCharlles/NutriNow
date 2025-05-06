@@ -348,6 +348,60 @@ class ListarNutricionistasView(APIView):
 
 class AtualizaHorariosDisponiveis(APIView):
     permission_classes = [IsAuthenticated,IsNutricionista]
+    """
+    View responsável por atualizar as informações dos horários disponíveis de um nutricionista.
+
+    Métodos:
+        patch(request): Atualiza os dados dos horários disponíveis com base no token do nutricionista e os dados fornecidos na request.
+    """
+
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "id_nutricionista": openapi.Schema(
+                    type=openapi.TYPE_INTEGER, description="ID do nutricionista"
+                ),
+                "horarios_disponiveis":openapi.Schema(
+                    type=openapi.TYPE_OBJECT, description="Horários disponíveis de um nutricionista."
+                )
+            },
+        ),
+        responses={
+            200: openapi.Response(
+                description="Detalhes dos horários atualizados.",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "id": openapi.Schema(type=openapi.TYPE_INTEGER),
+                        "horarios_disponiveis":openapi.Schema(type=openapi.TYPE_OBJECT)
+                    },
+                ),
+            ),
+            404: openapi.Response(
+                description="Nenhum nutricionista foi encontrado.",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "error": openapi.Schema(
+                            type=openapi.TYPE_STRING, description="Mensagem de erro"
+                        )
+                    },
+                ),
+            ),
+            400: openapi.Response(
+                description="Erro ao tentar atualizar os horários.",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "error": openapi.Schema(
+                            type=openapi.TYPE_STRING, description="Mensagem de erro"
+                        )
+                    },
+                ),
+            ),
+        },
+    )
     def patch(self,request):
         usuario = request.user
         if not usuario.is_nutricionista:

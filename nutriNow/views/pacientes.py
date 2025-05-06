@@ -210,8 +210,69 @@ class DeletePacienteView(APIView):
                 return JsonResponse({'status': 'erro', 'mensagem': str(e)}, status=400)
         return JsonResponse({"error":"Usuário não é instância de paciente."})
 
+
 class AdicionaAlimentoNoDiarioView(APIView):
     permission_classes = [IsAuthenticated,IsPaciente]
+    """
+    View responsável por atualizar as informações do diario alimentar do paciente.
+
+    Métodos:
+        patch(request): Atualiza os dados do diario alimentar com base no token do usuário e os dados fornecidos na request.
+    """
+
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "id_paciente": openapi.Schema(
+                    type=openapi.TYPE_INTEGER, description="ID do paciente"
+                ),
+                "diario_alimentar":openapi.Schema(
+                    type=openapi.TYPE_OBJECT, description="Diário alimentar do paciente."
+                )
+            },
+        ),
+        responses={
+            200: openapi.Response(
+                description="Detalhes do diário alimentar atualizado",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "id": openapi.Schema(type=openapi.TYPE_INTEGER),
+                        "nome": openapi.Schema(type=openapi.TYPE_STRING),
+                        "email": openapi.Schema(type=openapi.TYPE_STRING),
+                        "senha": openapi.Schema(type=openapi.TYPE_STRING),
+                        "telefone": openapi.Schema(type=openapi.TYPE_STRING),
+                        "endereco": openapi.Schema(type=openapi.TYPE_STRING),
+                        "diario_alimentar":openapi.Schema(type=openapi.TYPE_OBJECT)
+                    },
+                ),
+            ),
+            404: openapi.Response(
+                description="Nenhum paciente foi encontrado.",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "error": openapi.Schema(
+                            type=openapi.TYPE_STRING, description="Mensagem de erro"
+                        )
+                    },
+                ),
+            ),
+            400: openapi.Response(
+                description="Erro ao tentar atualizar o diario alimentar.",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "error": openapi.Schema(
+                            type=openapi.TYPE_STRING, description="Mensagem de erro"
+                        )
+                    },
+                ),
+            ),
+        },
+    )
+  
     def patch(self,request):
         if request.user.is_paciente:
             try:

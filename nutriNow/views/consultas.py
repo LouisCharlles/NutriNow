@@ -198,13 +198,13 @@ class DefineConsultaComoRealizadaView(APIView):
             return JsonResponse({"Error":"Usuário não é nutricionista, não é permitido realizar essa função."})
 
 class VizualizarListaDeConsultasView(APIView):
-    permission_classes = [IsAuthenticated,IsNutricionista]
+    permission_classes = [IsAuthenticated]
     """
     View responsável por visualizar a lista de consultas de um nutricionista.
     """
     @swagger_auto_schema(
     operation_summary="Listar consultas pendentes",
-    operation_description="Retorna a lista de consultas marcadas com o nutricionista logado que ainda não foram realizadas.",
+    operation_description="Retorna a lista de todas as consultas marcadas, realizadas ou não com um nutricionista. O usuário deve estar autenticado para retornar suas consultas.",
     responses={
         200: openapi.Response("Lista de consultas pendentes", openapi.Schema(
             type=openapi.TYPE_ARRAY,
@@ -230,17 +230,39 @@ class VizualizarListaDeConsultasView(APIView):
                 consultas = Consulta.objects.filter(nutricionista=nutricionista).values(
                     'id', 'data_consulta', 'nutricionista__nome', 'paciente__nome', 'realizada'
                 )
-
                 lista_consultas = []
-                for consulta in consultas:
-                    if not consulta['realizada']:
-                        lista_consultas.append({
-                            'id': consulta['id'],
-                            'data_consulta': consulta['data_consulta'],
-                            'nutricionista_nome': consulta['nutricionista__nome'],
-                            'paciente_nome': consulta['paciente__nome'],
-                            'realizada': consulta['realizada']
-                        })
+                for consulta in consultas:       
+                    lista_consultas.append({
+                        'id': consulta['id'],
+                        'data_consulta': consulta['data_consulta'],
+                        'nutricionista_nome': consulta['nutricionista__nome'],
+                        'paciente_nome': consulta['paciente__nome'],
+                        'realizada': consulta['realizada']
+                    })
+                return JsonResponse(lista_consultas, status=200, safe=False)
+            except Paciente.DoesNotExist:
+                return JsonResponse({'status': 'erro', 'mensagem': 'Paciente não encontrado'}, status=404)
+            except Nutricionista.DoesNotExist:
+                return JsonResponse({'status': 'erro', 'mensagem': 'Nutricionista não encontrado'}, status=404)
+            except Consulta.DoesNotExist:
+                return JsonResponse({'status': 'erro', 'mensagem': 'Nenhuma consulta encontrada'}, status=404)
+            except Exception as e:
+                return JsonResponse({'status': 'erro', 'mensagem': str(e)}, status=400)
+        elif request.user.is_paciente:
+            try:
+                paciente = Paciente.objects.get(pk=kwargs["pk"])
+                consultas = Consulta.objects.filter(paciente=paciente).values(
+                    'id', 'data_consulta', 'nutricionista__nome', 'paciente__nome', 'realizada'
+                )
+                lista_consultas = []
+                for consulta in consultas:       
+                    lista_consultas.append({
+                        'id': consulta['id'],
+                        'data_consulta': consulta['data_consulta'],
+                        'nutricionista_nome': consulta['nutricionista__nome'],
+                        'paciente_nome': consulta['paciente__nome'],
+                        'realizada': consulta['realizada']
+                    })
                 return JsonResponse(lista_consultas, status=200, safe=False)
             except Paciente.DoesNotExist:
                 return JsonResponse({'status': 'erro', 'mensagem': 'Paciente não encontrado'}, status=404)
@@ -251,4 +273,4 @@ class VizualizarListaDeConsultasView(APIView):
             except Exception as e:
                 return JsonResponse({'status': 'erro', 'mensagem': str(e)}, status=400)
 
-        return JsonResponse({"Error": "Usuário não é nutricionista, não é permitido realizar essa função."})
+        return JsonResponse({"Error": "Usuário não é nutricionista ou Paciente, não é permitido realizar essa função."})
