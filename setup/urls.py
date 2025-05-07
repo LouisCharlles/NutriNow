@@ -19,7 +19,7 @@ from django.urls import path
 from django.conf.urls.static import static
 from django.conf import settings
 from nutriNow import views
-from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView 
+from rest_framework_simplejwt.views import TokenRefreshView 
 from nutriNow.swagger import schema_view
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,7 +33,7 @@ urlpatterns = [
     path('retorna_consulta/<int:pk>/',views.UsuarioVizualizaConsultaView.as_view(),name="retorna_consulta"),
     path('realizar_consulta/',views.DefineConsultaComoRealizadaView.as_view(),name="realizar_consulta"),
     path('lista_consultas/<int:pk>/',views.VizualizarListaDeConsultasView.as_view(),name="lista_consultas"),
-    path('api/token/',TokenObtainPairView.as_view(),name='token_obtain_pair'),
+    path('api/token/',views.CustomTokenObtainPairAndIdView.as_view(),name='token_obtain_pair_and_id'),
     path('api/token/refresh/',TokenRefreshView.as_view(),name='token_refresh'),
     path('registrar_usuario/', views.RegistroUsuarioView.as_view(), name='registrar_usuario'),
     path('criar_plano_alimentar/',views.CriarPlanoAlimentarView.as_view(),name="criar_plano"),

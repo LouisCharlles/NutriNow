@@ -32,6 +32,10 @@ from .planos_alimentares import(
 from.notificacoes import(
     MarcarNotificacaoComoLidaView,
 )
+
+from .token import(
+    CustomTokenObtainPairAndIdView,
+)
 __all__ = [
     "GetPacienteInfoView",
     "UpdatePacienteView",
@@ -50,4 +54,5 @@ __all__ = [
     "AtualizarHorariosDisponiveis",
     "ListarNutricionistasView",
     "MarcarNotificacaoComoLidaView",
+    "CustomTokenObtainPairAndIdView",
 ]

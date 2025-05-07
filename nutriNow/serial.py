@@ -1,3 +1,4 @@
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -74,6 +75,31 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError({"nutricionista_data":f"Erro ao processar dados de nutricionista: {str(e)}"})
         user.save()
         return user
+    
+class CustomTokenObtainPairAndIdSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data =  super().validate(attrs)
+        user = self.user
+        data["user_id"] = user.id
+        data["is_paciente"] = user.is_paciente
+        data["is_nutricionista"] = user.is_nutricionista
+
+        if user.is_paciente:
+            try:
+                paciente = Paciente.objects.get(usuario=user)
+                data['paciente_id'] = paciente.id
+            except Paciente.DoesNotExist:
+                data['paciente_id'] = None
+        elif user.is_nutricionista:
+            try:
+                nutricionista = Nutricionista.objects.get(usuario=user)
+                data['nutricionista_id'] = nutricionista.id
+            except Nutricionista.DoesNotExist:
+                data['nutricionista_id'] = None
+
+        return data
+
+        
 class PacienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Paciente
