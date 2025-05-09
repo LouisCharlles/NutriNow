@@ -27,6 +27,7 @@ from .usuarios import (
 
 from .planos_alimentares import(
     CriarPlanoAlimentarView,
+    GetPlanoAlimentarInfoView,
 )
 
 from.notificacoes import(
@@ -50,6 +51,7 @@ __all__ = [
     "VizualizarListaDeConsultasView",
     "RegistroUsuarioView",
     "CriarPlanoAlimentarView",
+    "GetPlanoAlimentarInfoView",
     "RetornaDiarioAlimentarDoPacienteView",
     "AtualizarHorariosDisponiveis",
     "ListarNutricionistasView",

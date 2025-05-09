@@ -37,6 +37,7 @@ urlpatterns = [
     path('api/token/refresh/',TokenRefreshView.as_view(),name='token_refresh'),
     path('registrar_usuario/', views.RegistroUsuarioView.as_view(), name='registrar_usuario'),
     path('criar_plano_alimentar/',views.CriarPlanoAlimentarView.as_view(),name="criar_plano"),
+    path("retorna_plano_alimentar/<int:pk>/",views.GetPlanoAlimentarInfoView.as_view(),name="retorna_plano_alimentar"),
     path('adicionar_alimento_no_diario/',views.AdicionaAlimentoNoDiarioView.as_view(),name="adicionar_alimento_no_diario"),
     path('retornar_diario_alimentar/<int:pk>/',views.RetornaDiarioAlimentarDoPacienteView.as_view(),name="retornar_diario_alimentar"),
     path('atualiza_horarios_disponiveis/',views.AtualizaHorariosDisponiveis.as_view(),name='atualiza_horarios_disponiveis'),
