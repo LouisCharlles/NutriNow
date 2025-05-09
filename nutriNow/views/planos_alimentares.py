@@ -30,7 +30,7 @@ class CriarPlanoAlimentarView(APIView):
                 if serializer.is_valid():
                     plano = serializer.save()
                     gerar_pdf(plano)
-                    return Response(f"Id - {serializer.data["id"]}",status=status.HTTP_200_OK)
+                    return Response(serializer.data,status=status.HTTP_200_OK)
             except Nutricionista.DoesNotExist:
                 return Response({"error": "Nutricionista não encontrado."}, status.HTTP_404)
             except Paciente.DoesNotExist:
