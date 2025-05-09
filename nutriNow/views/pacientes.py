@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from ..models import Paciente
+from ..models import PlanoAlimentar
 from ..serial import PacienteSerializer
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
@@ -39,6 +40,8 @@ class GetPacienteInfoView(APIView):
             'endereco':openapi.Schema(type=openapi.TYPE_STRING),
             'telefone':openapi.Schema(type=openapi.TYPE_STRING),
             'data_nascimento':openapi.Schema(type=openapi.TYPE_STRING,format=openapi.FORMAT_DATETIME),
+            'diario_alimentar':openapi.Schema(type=openapi.TYPE_OBJECT),
+            'plano_alimentar':openapi.Schema(type=openapi.TYPE_INTEGER),
         })),
         404:'Nenhum paciente com este id foi encontrado.',
         400: 'Erro na requisição.'
@@ -54,6 +57,11 @@ class GetPacienteInfoView(APIView):
             try:
                 paciente_id = kwargs["pk"]
                 paciente = Paciente.objects.get(pk=paciente_id)
+                ultimo_plano = PlanoAlimentar.objects.filter(paciente=paciente).order_by('-criado_em').first()
+                if ultimo_plano:
+                    if paciente.plano_alimentar != ultimo_plano:
+                        paciente.plano_alimentar = ultimo_plano
+                        paciente.save()
                 serializer = PacienteSerializer(paciente)
                 return Response(serializer.data, status=200)
             except Paciente.DoesNotExist:

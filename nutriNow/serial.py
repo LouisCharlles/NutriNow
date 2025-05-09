@@ -104,7 +104,7 @@ class PacienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Paciente
         fields = ['id','nome', 'email', 'senha', 'idade', 'peso', 'altura',
-            'endereco', 'genero', 'telefone', 'data_nascimento','diario_alimentar']
+            'endereco', 'genero', 'telefone', 'data_nascimento','plano_alimentar','diario_alimentar']
 
     def validate_email(self, value):
         try:
