@@ -4,7 +4,6 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
 from .models import Paciente, Nutricionista,Consulta,Usuario,PlanoAlimentar
-from rest_framework import serializers
 from django.db import transaction
 class RegistroUsuarioSerializer(serializers.ModelSerializer):
     nome = serializers.CharField(required=False)
