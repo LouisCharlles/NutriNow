@@ -14,13 +14,14 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
     endereco = serializers.CharField(required=False)
     telefone = serializers.CharField(required=False)
     data_nascimento = serializers.DateField(required=False)
+    email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     paciente_data = serializers.DictField(write_only=True, required=False)
     nutricionista_data = serializers.DictField(write_only=True, required=False)
     class Meta:
         model = Usuario
         fields = [
-            'username', 'email', 'password',
+            'email', 'password',
             'is_paciente', 'is_nutricionista',
             'nome','idade', 'peso', 'altura', 'genero',
             'endereco','telefone', 'data_nascimento',
@@ -62,7 +63,7 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
                 try:
                     nutricionista_data = {
                         'usuario': user,
-                        'nome': user.username,
+                        'nome': nutricionista_data.get("nome"),
                         'email':user.email,
                         'senha':nutricionista_data.get("senha"),
                         'telefone': nutricionista_data.get('telefone', ''),
@@ -76,7 +77,14 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
         return user
     
 class CustomTokenObtainPairAndIdSerializer(TokenObtainPairSerializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Remove o campo username herdado do TokenObtainPairSerializer
+        self.fields.pop("username", None)
     def validate(self, attrs):
+        attrs['username'] = attrs.get('email')
         data =  super().validate(attrs)
         user = self.user
         data["user_id"] = user.id

@@ -58,7 +58,7 @@ class RegistroUsuarioView(APIView):
                     required=['nome', 'email', 'senha', 'endereco', 'telefone']
                 ),
             },
-            required=['username', 'email', 'password']
+            required=['email', 'password']
         ),
         responses={
             201: openapi.Response('Usuário criado com sucesso.'),
