@@ -228,14 +228,15 @@ class VizualizarListaDeConsultasView(APIView):
             try:
                 nutricionista = Nutricionista.objects.get(pk=kwargs["pk"])
                 consultas = Consulta.objects.filter(nutricionista=nutricionista).values(
-                    'id', 'data_consulta', 'nutricionista__nome', 'paciente__nome', 'realizada'
+                    'id', 'data_consulta', 'nutricionista__nome', 'paciente__id','paciente__nome', 'realizada'
                 )
                 lista_consultas = []
-                for consulta in consultas:       
+                for consulta in consultas:     
                     lista_consultas.append({
                         'id': consulta['id'],
                         'data_consulta': consulta['data_consulta'],
                         'nutricionista_nome': consulta['nutricionista__nome'],
+                        'paciente_id':consulta['paciente__id'],
                         'paciente_nome': consulta['paciente__nome'],
                         'realizada': consulta['realizada']
                     })
